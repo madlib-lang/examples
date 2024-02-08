@@ -10,7 +10,12 @@ import { Argv } from "Process"
 
 
 
+// # Usage:
+// Random starting number:   madlib run src/CollatzConjecture.mad
+// Specific starting number: madlib run src/CollatzConjecture.mad 12345 
+
 // worth watching for more info: https://www.youtube.com/watch?v=094y1Z2wpJg
+
 
 collatzStep :: Integer -> Integer
 collatzStep = (x) => (Math.mod(x, 2) != 0 ? 3 * x + 1 : toInteger(x / 2))
