@@ -4,7 +4,7 @@ import { toInteger } from "Float"
 import IO from "IO"
 import List from "List"
 import Math from "Math"
-import { Just, Nothing } from "Maybe"
+import { Just, Nothing, fromMaybe } from "Maybe"
 import Number from "Number"
 import { Argv } from "Process"
 
@@ -18,7 +18,7 @@ collatzStep = (x) => (Math.mod(x, 2) != 0 ? 3 * x + 1 : toInteger(x / 2))
 collatz :: Integer -> List Integer
 collatz = (step) => (step == 1 ? [1] : [step, ...collatz(collatzStep(step))])
 
-getLastArgvAsInt :: Maybe String -> Integer
+getLastArgvAsInt :: List String -> Integer
 getLastArgvAsInt = pipe(
   List.last,
   chain(scan),
