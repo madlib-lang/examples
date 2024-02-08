@@ -1,11 +1,14 @@
+import type { Maybe } from "Maybe"
+
+import { toInteger } from "Float"
 import IO from "IO"
 import List from "List"
 import Math from "Math"
-import Number from "Number"
-import { toInteger } from "Float"
-import { Argv } from "Process"
 import { Just, Nothing } from "Maybe"
-import type { Maybe } from "Maybe"
+import Number from "Number"
+import { Argv } from "Process"
+
+
 
 // worth watching for more info: https://www.youtube.com/watch?v=094y1Z2wpJg
 
@@ -17,19 +20,14 @@ collatz = (step) => (step == 1 ? [1] : [step, ...collatz(collatzStep(step))])
 
 getLastArgvAsInt :: Maybe String -> Integer
 getLastArgvAsInt = pipe(
-  where {
-    Just(x) => scan(x)
-    Nothing => Nothing
-  }, 
-  where {
-    Just(x) => x
-    Nothing => 1
-  }
+  List.last,
+  chain(scan),
+  fromMaybe(1),
 )
 
 main = () => {
   defaultHail = #- Math.round(Math.random() * 1e10) -#
-  hail = List.length(Argv) > 1 ? getLastArgvAsInt(List.last(Argv)) : defaultHail
+  hail = List.length(Argv) > 1 ? getLastArgvAsInt(Argv) : defaultHail
   IO.trace("Running with starting number:", hail)
   hailed = collatz(hail)
   hailed |> IO.log
