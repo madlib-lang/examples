@@ -1,0 +1,14 @@
+import { read } from "File"
+import { joinPath } from "FilePath"
+import { put, trace } from "IO"
+import { fulfill } from "Wish"
+
+
+
+main = () => {
+  pipe(
+    (i) => joinPath(["src", i]),
+    read,
+    fulfill((b) => { trace("bad", b) }, (g) => { put(g) }),
+  )("Quine.mad")
+}
