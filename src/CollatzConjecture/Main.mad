@@ -13,8 +13,23 @@ import { collatz, getLastArgvAsInt } from "@/CollatzConjecture/Lib"
 
 // worth watching for more info: https://www.youtube.com/watch?v=094y1Z2wpJg
 
+#iftarget llvm
+
+rando :: {} -> Integer
+rando = extern "madex__rando"
+
+#endif
+
+#iftarget js
+
+rando :: {} -> Integer
+rando = () => #- Math.round(Math.random() * 1e10) -#
+
+#endif
+
+
 main = () => {
-  defaultHail = #- Math.round(Math.random() * 1e10) -#
+  defaultHail = rando()
   hail = List.length(Argv) > 1 ? getLastArgvAsInt(Argv) : defaultHail
   IO.putLine(
     "Generating hailstones with starting number: "
