@@ -1,0 +1,5 @@
+import { collatzStep, getLastArgvAsInt, collatz  } from './Lib'
+
+test('collatzStep', () => {
+  
+})

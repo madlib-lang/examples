@@ -1,0 +1,24 @@
+import type { Maybe } from "Maybe"
+
+import { toInteger } from "Float"
+import IO from "IO"
+import List from "List"
+import Math from "Math"
+import { Just, Nothing, fromMaybe } from "Maybe"
+import Number from "Number"
+import { Argv } from "Process"
+
+
+
+collatzStep :: Integer -> Integer
+export collatzStep = (x) => (Math.mod(x, 2) != 0 ? 3 * x + 1 : toInteger(x / 2))
+
+collatz :: Integer -> List Integer
+export collatz = (step) => (step == 1 ? [1] : [step, ...collatz(collatzStep(step))])
+
+getLastArgvAsInt :: List String -> Integer
+export getLastArgvAsInt = pipe(
+  List.last,
+  chain(scan),
+  fromMaybe(1),
+)
