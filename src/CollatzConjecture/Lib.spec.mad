@@ -1,5 +1,9 @@
-import { collatzStep, getLastArgvAsInt, collatz  } from './Lib'
+import { assertEquals, test } from "Test"
 
-test('collatzStep', () => {
-  
-})
+import { collatz, collatzStep, getLastArgvAsInt } from "./Lib"
+
+
+
+test("collatzStep", () => assertEquals(collatzStep(123), 370))
+test("collatz", () => assertEquals(collatz(10), [10, 5, 16, 8, 4, 2, 1]))
+test("getLastArgvAsInt", () => assertEquals(getLastArgvAsInt(["234"]), 234))

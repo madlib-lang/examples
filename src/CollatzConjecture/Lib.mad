@@ -1,21 +1,33 @@
-import type { Maybe } from "Maybe"
-
 import { toInteger } from "Float"
-import IO from "IO"
+import {} from "IO"
 import List from "List"
 import Math from "Math"
-import { Just, Nothing, fromMaybe } from "Maybe"
-import Number from "Number"
-import { Argv } from "Process"
+import { fromMaybe } from "Maybe"
 
 
 
+/**
+ * Takes an integer `n` and if even, divides by 2, otherwise, multiplies by 3 and adds 1
+ * @example
+ * collatzStep(123) // 370
+ */
 collatzStep :: Integer -> Integer
 export collatzStep = (x) => (Math.mod(x, 2) != 0 ? 3 * x + 1 : toInteger(x / 2))
 
+/**
+ * Take a starting number and continually apply `collatzStep`
+ * until the number 1 is reached (if ever)
+ * @example
+ * collatzStep(10) // [10, 5, 16, 8, 4, 2, 1]
+ */
 collatz :: Integer -> List Integer
 export collatz = (step) => (step == 1 ? [1] : [step, ...collatz(collatzStep(step))])
 
+/**
+ * Grab the last value in a list, attempt to parse into an integer, or return 1
+ * @example
+ * getLastArgvAsInt(["234"]) // 234
+ */
 getLastArgvAsInt :: List String -> Integer
 export getLastArgvAsInt = pipe(
   List.last,
