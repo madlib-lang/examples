@@ -1,5 +1,6 @@
 import { toInteger } from "Float"
-import {} from "IO"
+// needed for `scan`
+// import {} from "IO"
 import List from "List"
 import Math from "Math"
 import { fromMaybe } from "Maybe"
