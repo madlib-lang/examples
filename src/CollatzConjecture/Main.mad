@@ -1,0 +1,40 @@
+import Float from "Float"
+import IO from "IO"
+import List from "List"
+import Math from "Math"
+import { Argv } from "Process"
+import Terminal from "Terminal"
+
+import { collatz, getLastArgvAsInt } from "@/CollatzConjecture/Lib"
+
+
+
+// # Usage:
+// Random starting number:   madlib run src/CollatzConjecture/Main.mad
+// Use llvm:                 madlib run --target llvm src/CollatzConjecture/Main.mad
+// Specific starting number: madlib run src/CollatzConjecture/Main.mad 12345 
+
+// worth watching for more info: https://www.youtube.com/watch?v=094y1Z2wpJg
+
+
+main = () => {
+  defaultHail = Float.toInteger(Math.round(Math.random() * 1000000000))
+  hail = List.length(Argv) > 1 ? getLastArgvAsInt(Argv) : defaultHail
+  IO.putLine(
+    `Generating hailstones with starting number: ${
+      pipe(
+        show,
+        IO.red,
+      )(hail)
+    }`,
+  )
+  hailed = collatz(hail)
+  hailed |> IO.log
+  pipe(
+    List.length,
+    show,
+    IO.green,
+    mappend("total hailstone steps! "),
+    IO.putLine,
+  )(hailed)
+}
