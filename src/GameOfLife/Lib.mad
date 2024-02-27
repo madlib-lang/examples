@@ -103,6 +103,14 @@ countNeighbors = (culture, x, y) => pipe(
   )([nay.nw, nay.n, nay.ne, nay.w, nay.e, nay.sw, nay.s, nay.se]),
 )(y)
 
+mapCulture :: (Cell -> Cell) -> Culture -> Culture
+export mapCulture = (fn, culture) => pipe(
+  where {
+    Culture(Environment(w, h), cells) =>
+      Culture(Environment(w, h), map(fn, cells))
+  },
+)(culture)
+
 // next :: Culture -> Culture
 // next = (culture) => {
 //   where (culture) {

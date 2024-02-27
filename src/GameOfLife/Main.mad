@@ -8,10 +8,18 @@ import Life from "@/GameOfLife/Lib"
 main = () => {
   env = Life.Environment(6, 8)
   IO.trace("ENV", env)
-  c = Life.generateCulture(env)
-  IO.trace("CULT", c)
-  found = Life.getCell(c, 3, 4)
+  culture = Life.generateCulture(env)
+  IO.trace("CULT", culture)
+  found = Life.getCell(culture, 3, 4)
   IO.trace("FOUND CELL", found)
-  neighbors = Life.getNeighbors(c, 3, 4)
+  neighbors = Life.getNeighbors(culture, 3, 4)
   IO.trace("won't you be my", neighbors)
+  altered = Life.mapCulture(
+    where {
+      Life.Cell(state, x, y) =>
+        x == 3 && y == 4 ? Life.Cell(Life.LiveCell, 3, 4) : Life.Cell(state, x, y)
+    },
+    culture,
+  )
+  IO.trace("altered", altered)
 }
