@@ -95,7 +95,7 @@ livingCell = where {
 }
 
 countNeighbors :: Culture -> Integer -> Integer -> Integer
-countNeighbors = (culture, x, y) => pipe(
+export countNeighbors = (culture, x, y) => pipe(
   getNeighbors(culture, x),
   (nay) => pipe(
     List.filter(livingCell),
@@ -111,14 +111,36 @@ export mapCulture = (fn, culture) => pipe(
   },
 )(culture)
 
-// next :: Culture -> Culture
-// next = (culture) => {
-//   where (culture) {
-//     Culture(Environment(width, height), cellGrid) => map(
-//       map(where {
-//         Cell(LiveCell, x, y) => countNeighbors
-//         Cell(DeadCell, x, y) => 
-//       })
-//     )
-//   }
-// }
+toggleVitality :: Vitality -> Vitality
+toggleVitality = (v) => v == LiveCell ? DeadCell : LiveCell
+
+toggleCell :: Culture -> Integer -> Integer -> Culture
+export toggleCell = (culture, x, y) => mapCulture(
+  where {
+    Cell(state, x2, y2) =>
+      x == x2 && y == y2 ? Cell(toggleVitality(state), x2, y2) : Cell(state, x2, y2)
+  },
+  culture,
+)
+
+next :: Culture -> Culture
+export next = (culture) => mapCulture(
+  where {
+    Cell(state, x, y) =>
+      do {
+        neighbors = countNeighbors(culture, x, y)
+        return if (state == LiveCell) {
+          // living cells:
+          // solitude = neighbors <= 1
+          // overpopulation = neighbors >= 4
+          // survives = neighbors > 1 && neighbors < 4
+          Cell(neighbors < 1 && neighbors >= 4 ? DeadCell : LiveCell, x, y)
+        } else {
+          Cell(neighbors == 3 ? LiveCell : DeadCell, x, y)
+        }
+        // dead cells
+        // resurrect = neighbors == 3
+      }
+  },
+  culture,
+)

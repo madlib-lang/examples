@@ -14,12 +14,20 @@ main = () => {
   IO.trace("FOUND CELL", found)
   neighbors = Life.getNeighbors(culture, 3, 4)
   IO.trace("won't you be my", neighbors)
-  altered = Life.mapCulture(
-    where {
-      Life.Cell(state, x, y) =>
-        x == 3 && y == 4 ? Life.Cell(Life.LiveCell, 3, 4) : Life.Cell(state, x, y)
-    },
-    culture,
-  )
+  // altered = Life.mapCulture(
+  //   where {
+  //     Life.Cell(state, x, y) =>
+  //       x == 3 && y == 4 ? Life.Cell(Life.LiveCell, 3, 4) : Life.Cell(state, x, y)
+  //   },
+  //   culture,
+  // )
+  altered = pipe(
+    Life.toggleCell($, 3, 4),
+    Life.toggleCell($, 4, 4),
+    Life.toggleCell($, 3, 5),
+  )(culture)
   IO.trace("altered", altered)
+  IO.trace("LIVING NEIGHBORS", Life.countNeighbors(altered, 3, 4))
+  IO.trace("MR ROGERS", Life.getNeighbors(altered, 3, 4))
+  IO.trace("STEP!", Life.next(altered))
 }
