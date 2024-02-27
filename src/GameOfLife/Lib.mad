@@ -1,5 +1,6 @@
 import type { Maybe } from "Maybe"
 
+import IO from "IO"
 import List from "List"
 import { Just, Nothing, fromMaybe } from "Maybe"
 
@@ -17,8 +18,8 @@ export type Cell
   | OtherCell(Vitality, Integer, Integer)
   | InvalidCell
 export alias CellRow = List Cell
-export alias CellGrid = List CellRow
-export type Culture = Culture(Environment, CellGrid)
+// export alias CellGrid = List CellRow
+export type Culture = Culture(Environment, List Cell)
 export alias NeighboringCells = {
   e :: Maybe Cell,
   n :: Maybe Cell,
@@ -31,73 +32,76 @@ export alias NeighboringCells = {
 }
 
 generateCulture :: Environment -> Culture
-export generateCulture = (env) => where(env) {
-  Environment(width, height) =>
-    Culture(
-      env,
+export generateCulture = (env) => do {
+  cells = where(env) {
+    Environment(w, h) =>
       pipe(
         List.range(0),
         map(
           (x) => pipe(
             List.range(0),
             map((y) => Cell(DeadCell, x, y)),
-          )(height),
+          )(h),
         ),
-      )(width),
-    )
+        List.flatten,
+      )(w)
+  }
+  return Culture(env, cells)
 }
 
-getCell :: Culture -> Integer -> Integer -> Maybe Cell
-export getCell = (culture, x, y) => pipe(
-  where {
-    Culture(_, grid) =>
-      grid
-  },
-  List.nth(x),
-  map(List.nth(y)),
-  map(fromMaybe(InvalidCell)),
-)(culture)
 
-getNeighbors :: Culture -> Cell -> NeighboringCells
-getNeighbors = (culture, cell) => do {
-  cult = getCell(culture)
-  return where(cell) {
-    Cell(_, x, y) =>
-      (
-        {
-          nw: cult(x - 1, y - 1),
-          n: cult(x, y - 1),
-          ne: cult(x + 1, y - 1),
-          e: cult(x - 1, y),
-          w: cult(x + 1, y),
-          sw: cult(x - 1, y + 1),
-          s: cult(x, y + 1),
-          se: cult(x + 1, y + 1),
-        }
-      )
+getCell :: Culture -> Integer -> Integer -> Maybe Cell
+export getCell = (culture, x, y) => where(culture) {
+  Culture(Environment(width, height), list) =>
+    List.find(
+      where {
+        Cell(_, x2, y2) =>
+          x == x2 && y == y2
+
+        OtherCell(_, x3, y3) =>
+          x == x3 && y == y3
+
+        _ =>
+          false
+      },
+    )(list)
+}
+getNeighbors :: Culture -> Integer -> Integer -> NeighboringCells
+export getNeighbors = (culture, x, y) => do {
+  get = getCell(culture)
+  up = y - 1
+  left = x - 1
+  right = x + 1
+  down = y + 1
+  return {
+    nw: get(left, up),
+    n: get(x, up),
+    ne: get(right, up),
+    e: get(left, y),
+    w: get(right, y),
+    sw: get(left, down),
+    s: get(x, down),
+    se: get(right, down),
   }
 }
 
-livingCell :: Cell -> Boolean
+livingCell :: Maybe Cell -> Boolean
 livingCell = where {
-  Cell(LiveCell, _, _) =>
+  Just(Cell(LiveCell, _, _)) =>
     true
 
   _ =>
     false
 }
 
-countNeighbors :: Culture -> Cell -> Integer
-countNeighbors = (culture, cell) => pipe(
-  getNeighbors,
-  where {
-    { nw, n, ne, w, e, sw, s, se } =>
-      pipe(
-        List.filter(livingCell),
-        List.length,
-      )([nw, n, ne, w, e, sw, s, se])
-  },
-)
+countNeighbors :: Culture -> Integer -> Integer -> Integer
+countNeighbors = (culture, x, y) => pipe(
+  getNeighbors(culture, x),
+  (nay) => pipe(
+    List.filter(livingCell),
+    List.length,
+  )([nay.nw, nay.n, nay.ne, nay.w, nay.e, nay.sw, nay.s, nay.se]),
+)(y)
 
 // next :: Culture -> Culture
 // next = (culture) => {
@@ -110,5 +114,3 @@ countNeighbors = (culture, cell) => pipe(
 //     )
 //   }
 // }
-// lifeStep :: Cell -> Cell
-// lifeStep 
