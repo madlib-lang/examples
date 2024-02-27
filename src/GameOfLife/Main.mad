@@ -1,0 +1,9 @@
+import IO from "IO"
+
+import Life from "@/GameOfLife/Lib"
+
+
+
+main = () => {
+  IO.cLog(Life.generateCulture(Life.Environment(6, 8)))
+}

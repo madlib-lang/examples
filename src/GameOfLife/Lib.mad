@@ -1,0 +1,114 @@
+import type { Maybe } from "Maybe"
+
+import List from "List"
+import { Just, Nothing, fromMaybe } from "Maybe"
+
+
+
+// Environment(width, height)
+export type Environment = Environment(Integer, Integer)
+
+export type Vitality = LiveCell | DeadCell
+
+// Cell(living, x, y)
+// tesselated cells are OtherCells
+export type Cell
+  = Cell(Vitality, Integer, Integer)
+  | OtherCell(Vitality, Integer, Integer)
+  | InvalidCell
+export alias CellRow = List Cell
+export alias CellGrid = List CellRow
+export type Culture = Culture(Environment, CellGrid)
+export alias NeighboringCells = {
+  e :: Maybe Cell,
+  n :: Maybe Cell,
+  ne :: Maybe Cell,
+  nw :: Maybe Cell,
+  s :: Maybe Cell,
+  se :: Maybe Cell,
+  sw :: Maybe Cell,
+  w :: Maybe Cell,
+}
+
+generateCulture :: Environment -> Culture
+export generateCulture = (env) => where(env) {
+  Environment(width, height) =>
+    Culture(
+      env,
+      pipe(
+        List.range(0),
+        map(
+          (x) => pipe(
+            List.range(0),
+            map((y) => Cell(DeadCell, x, y)),
+          )(height),
+        ),
+      )(width),
+    )
+}
+
+getCell :: Culture -> Integer -> Integer -> Maybe Cell
+export getCell = (culture, x, y) => pipe(
+  where {
+    Culture(_, grid) =>
+      grid
+  },
+  List.nth(x),
+  map(List.nth(y)),
+  map(fromMaybe(InvalidCell)),
+)(culture)
+
+getNeighbors :: Culture -> Cell -> NeighboringCells
+getNeighbors = (culture, cell) => do {
+  cult = getCell(culture)
+  return where(cell) {
+    Cell(_, x, y) =>
+      (
+        {
+          nw: cult(x - 1, y - 1),
+          n: cult(x, y - 1),
+          ne: cult(x + 1, y - 1),
+          e: cult(x - 1, y),
+          w: cult(x + 1, y),
+          sw: cult(x - 1, y + 1),
+          s: cult(x, y + 1),
+          se: cult(x + 1, y + 1),
+        }
+      )
+  }
+}
+
+livingCell :: Cell -> Boolean
+livingCell = where {
+  Cell(LiveCell, _, _) =>
+    true
+
+  _ =>
+    false
+}
+
+countNeighbors :: Culture -> Cell -> Integer
+countNeighbors = (culture, cell) => pipe(
+  getNeighbors,
+  where {
+    { nw, n, ne, w, e, sw, s, se } =>
+      pipe(
+        List.filter(livingCell),
+        List.length,
+      )([nw, n, ne, w, e, sw, s, se])
+  },
+)
+
+// next :: Culture -> Culture
+// next = (culture) => {
+//   where (culture) {
+//     Culture(Environment(width, height), cellGrid) => map(
+//       map(where {
+//         Cell(LiveCell, x, y) => countNeighbors
+//         Cell(DeadCell, x, y) => 
+//       })
+//     )
+//   }
+// }
+// lifeStep :: Cell -> Cell
+// lifeStep 
