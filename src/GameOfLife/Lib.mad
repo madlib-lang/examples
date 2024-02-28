@@ -3,6 +3,7 @@ import type { Maybe } from "Maybe"
 import IO from "IO"
 import List from "List"
 import { Just, Nothing, fromMaybe } from "Maybe"
+import String from "String"
 
 
 
@@ -123,6 +124,30 @@ export toggleCell = (culture, x, y) => mapCulture(
   culture,
 )
 
+splitEvery :: Show a => Integer -> List a -> List (List a)
+export splitEvery = (count, x) => do {
+  i = 0
+  return pipe(
+    List.reduce(
+      (agg, y) => {
+        j = i % count
+        i = i + 1
+        return if (j == 0) {
+          List.append([y], agg)
+        } else {
+          pipe(
+            List.last,
+            fromMaybe([]),
+            List.append(y),
+            List.append($, List.init(agg)),
+          )(agg)
+        }
+      },
+      [],
+    ),
+  )(x)
+}
+
 next :: Culture -> Culture
 export next = (culture) => mapCulture(
   where {
@@ -134,7 +159,7 @@ export next = (culture) => mapCulture(
           // solitude = neighbors <= 1
           // overpopulation = neighbors >= 4
           // survives = neighbors > 1 && neighbors < 4
-          Cell(neighbors < 1 && neighbors >= 4 ? DeadCell : LiveCell, x, y)
+          Cell(neighbors <= 1 || neighbors >= 4 ? DeadCell : LiveCell, x, y)
         } else {
           Cell(neighbors == 3 ? LiveCell : DeadCell, x, y)
         }
@@ -144,3 +169,15 @@ export next = (culture) => mapCulture(
   },
   culture,
 )
+
+renderStatic :: Culture -> String
+export renderStatic = where {
+  Culture(Environment(w, h), cells) =>
+    pipe(
+      map(where { Cell(state, _, _) => state == LiveCell ? "🟥" : "⬜️" }),
+      splitEvery(h),
+      map(String.join("")),
+      String.join("\n"),
+      mappend("\n\n"),
+    )(cells)
+}
