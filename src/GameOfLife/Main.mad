@@ -1,0 +1,40 @@
+import IO from "IO"
+import List from "List"
+
+import Life from "@/GameOfLife/Lib"
+
+
+
+main = () => {
+  IO.trace("RANGE", Life.splitEvery(4, List.range(0, 20)))
+  env = Life.Environment(10, 10)
+  IO.trace("ENV", env)
+  culture = Life.generateCulture(env)
+  IO.trace("CULT", culture)
+  found = Life.getCell(culture, 3, 4)
+  IO.trace("FOUND CELL", found)
+  neighbors = Life.getNeighbors(culture, 3, 4)
+  IO.trace("won't you be my", neighbors)
+  // altered = Life.mapCulture(
+  //   where {
+  //     Life.Cell(state, x, y) =>
+  //       x == 3 && y == 4 ? Life.Cell(Life.LiveCell, 3, 4) : Life.Cell(state, x, y)
+  //   },
+  //   culture,
+  // )
+  altered = pipe(
+    Life.toggleCell($, 3, 1),
+    Life.toggleCell($, 5, 1),
+    Life.toggleCell($, 5, 2),
+    Life.toggleCell($, 4, 3),
+    Life.toggleCell($, 4, 2),
+  )(culture)
+  IO.trace("altered", altered)
+  IO.put(Life.renderStatic(altered))
+  IO.trace("LIVING NEIGHBORS", Life.countNeighbors(altered, 3, 4))
+  IO.trace("MR ROGERS", Life.getNeighbors(altered, 3, 4))
+  IO.trace("STEP!", Life.next(altered))
+  IO.put(Life.renderStatic(Life.next(altered)))
+  IO.put(Life.renderStatic(Life.next(Life.next(altered))))
+  IO.put(Life.renderStatic(Life.next(Life.next(Life.next(altered)))))
+}

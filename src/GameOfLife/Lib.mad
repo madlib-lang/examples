@@ -1,0 +1,183 @@
+import type { Maybe } from "Maybe"
+
+import IO from "IO"
+import List from "List"
+import { Just, Nothing, fromMaybe } from "Maybe"
+import String from "String"
+
+
+
+// Environment(width, height)
+export type Environment = Environment(Integer, Integer)
+
+export type Vitality = LiveCell | DeadCell
+
+// Cell(living, x, y)
+// tesselated cells are OtherCells
+export type Cell
+  = Cell(Vitality, Integer, Integer)
+  | OtherCell(Vitality, Integer, Integer)
+  | InvalidCell
+export alias CellRow = List Cell
+// export alias CellGrid = List CellRow
+export type Culture = Culture(Environment, List Cell)
+export alias NeighboringCells = {
+  e :: Maybe Cell,
+  n :: Maybe Cell,
+  ne :: Maybe Cell,
+  nw :: Maybe Cell,
+  s :: Maybe Cell,
+  se :: Maybe Cell,
+  sw :: Maybe Cell,
+  w :: Maybe Cell,
+}
+
+generateCulture :: Environment -> Culture
+export generateCulture = (env) => do {
+  cells = where(env) {
+    Environment(w, h) =>
+      pipe(
+        List.range(0),
+        map(
+          (x) => pipe(
+            List.range(0),
+            map((y) => Cell(DeadCell, x, y)),
+          )(h),
+        ),
+        List.flatten,
+      )(w)
+  }
+  return Culture(env, cells)
+}
+
+
+getCell :: Culture -> Integer -> Integer -> Maybe Cell
+export getCell = (culture, x, y) => where(culture) {
+  Culture(Environment(width, height), list) =>
+    List.find(
+      where {
+        Cell(_, x2, y2) =>
+          x == x2 && y == y2
+
+        OtherCell(_, x3, y3) =>
+          x == x3 && y == y3
+
+        _ =>
+          false
+      },
+    )(list)
+}
+getNeighbors :: Culture -> Integer -> Integer -> NeighboringCells
+export getNeighbors = (culture, x, y) => do {
+  get = getCell(culture)
+  up = y - 1
+  left = x - 1
+  right = x + 1
+  down = y + 1
+  return {
+    nw: get(left, up),
+    n: get(x, up),
+    ne: get(right, up),
+    e: get(left, y),
+    w: get(right, y),
+    sw: get(left, down),
+    s: get(x, down),
+    se: get(right, down),
+  }
+}
+
+livingCell :: Maybe Cell -> Boolean
+livingCell = where {
+  Just(Cell(LiveCell, _, _)) =>
+    true
+
+  _ =>
+    false
+}
+
+countNeighbors :: Culture -> Integer -> Integer -> Integer
+export countNeighbors = (culture, x, y) => pipe(
+  getNeighbors(culture, x),
+  (nay) => pipe(
+    List.filter(livingCell),
+    List.length,
+  )([nay.nw, nay.n, nay.ne, nay.w, nay.e, nay.sw, nay.s, nay.se]),
+)(y)
+
+mapCulture :: (Cell -> Cell) -> Culture -> Culture
+export mapCulture = (fn, culture) => pipe(
+  where {
+    Culture(Environment(w, h), cells) =>
+      Culture(Environment(w, h), map(fn, cells))
+  },
+)(culture)
+
+toggleVitality :: Vitality -> Vitality
+toggleVitality = (v) => v == LiveCell ? DeadCell : LiveCell
+
+toggleCell :: Culture -> Integer -> Integer -> Culture
+export toggleCell = (culture, x, y) => mapCulture(
+  where {
+    Cell(state, x2, y2) =>
+      x == x2 && y == y2 ? Cell(toggleVitality(state), x2, y2) : Cell(state, x2, y2)
+  },
+  culture,
+)
+
+splitEvery :: Show a => Integer -> List a -> List (List a)
+export splitEvery = (count, x) => do {
+  i = 0
+  return pipe(
+    List.reduce(
+      (agg, y) => {
+        j = i % count
+        i = i + 1
+        return if (j == 0) {
+          List.append([y], agg)
+        } else {
+          pipe(
+            List.last,
+            fromMaybe([]),
+            List.append(y),
+            List.append($, List.init(agg)),
+          )(agg)
+        }
+      },
+      [],
+    ),
+  )(x)
+}
+
+next :: Culture -> Culture
+export next = (culture) => mapCulture(
+  where {
+    Cell(state, x, y) =>
+      do {
+        neighbors = countNeighbors(culture, x, y)
+        return if (state == LiveCell) {
+          // living cells:
+          // solitude = neighbors <= 1
+          // overpopulation = neighbors >= 4
+          // survives = neighbors > 1 && neighbors < 4
+          Cell(neighbors <= 1 || neighbors >= 4 ? DeadCell : LiveCell, x, y)
+        } else {
+          Cell(neighbors == 3 ? LiveCell : DeadCell, x, y)
+        }
+        // dead cells
+        // resurrect = neighbors == 3
+      }
+  },
+  culture,
+)
+
+renderStatic :: Culture -> String
+export renderStatic = where {
+  Culture(Environment(w, h), cells) =>
+    pipe(
+      map(where { Cell(state, _, _) => state == LiveCell ? "🟥" : "⬜️" }),
+      splitEvery(h),
+      map(String.join("")),
+      String.join("\n"),
+      mappend("\n\n"),
+    )(cells)
+}
