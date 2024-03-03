@@ -1,0 +1,38 @@
+import IO from "IO"
+
+
+
+ternaryOperator :: Boolean -> Integer
+ternaryOperator = (cond) => cond ? 7 : 5
+
+ternaryImplicitReturn :: Boolean -> Integer
+ternaryImplicitReturn = (cond) => if (cond) {
+  7
+} else {
+  5
+}
+
+ternaryExplicitReturn :: Boolean -> Integer
+ternaryExplicitReturn = (cond) => {
+  return if (cond) {
+    7
+  } else {
+    5
+  }
+}
+
+ternaryDoBlock :: Boolean -> Integer
+ternaryDoBlock = (cond) => {
+  x = 5
+  if (cond) do {
+    x = 7
+  }
+  return x
+}
+
+export main = () => {
+  IO.trace("ternary operator:", ternaryOperator(true))
+  IO.trace("implicit", ternaryImplicitReturn(true))
+  IO.trace("explicit:", ternaryExplicitReturn(true))
+  IO.trace("do block:", ternaryDoBlock(true))
+}
