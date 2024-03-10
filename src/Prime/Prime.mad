@@ -1,4 +1,4 @@
-import { loop, while } from "Control"
+import { while } from "Control"
 
 
 
@@ -16,9 +16,7 @@ export isPrime = (n) => {
   checker = () => {
     while(
       () => {
-        check = if (i * i > n) {
-          false
-        } else if (primal(i, n)) {
+        check = if (i * i > n || primal(i, n)) {
           false
         } else do {
           matched = true

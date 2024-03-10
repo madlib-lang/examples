@@ -6,7 +6,7 @@ import { isPrime } from "./Prime"
 
 
 main = () => {
-  n = 1000
+  n = 400000
   pipe(
     range(0),
     filter(isPrime),
