@@ -1,0 +1,15 @@
+import IO from "IO"
+import { filter, range } from "List"
+
+import { isPrime } from "./Prime"
+
+
+
+main = () => {
+  n = 1000
+  pipe(
+    range(0),
+    filter(isPrime),
+    IO.trace(`Primes under ${show(n)}`),
+  )(n)
+}

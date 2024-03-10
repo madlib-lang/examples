@@ -1,0 +1,40 @@
+import { loop, while } from "Control"
+
+
+
+primal :: Integer -> Integer -> Boolean
+primal = (i, num) => (num % i == 0 || num % (i + 2) == 0)
+
+noRemainder :: Integer -> Integer -> Boolean
+noRemainder = (d, n) => n % d == 0
+
+isPrime :: Integer -> Boolean
+export isPrime = (n) => {
+  divisibleBy = noRemainder($, n)
+  i = 5
+  matched = false
+  checker = () => {
+    while(
+      () => {
+        check = if (i * i > n) {
+          false
+        } else if (primal(i, n)) {
+          false
+        } else do {
+          matched = true
+          return true
+        }
+        i = i + 6
+        return check
+      },
+    )
+    return matched
+  }
+  return if (n == 2 || n == 3) {
+    true
+  } else if (n <= 1 || divisibleBy(2) || divisibleBy(3)) {
+    false
+  } else {
+    checker()
+  }
+}
