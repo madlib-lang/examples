@@ -1,0 +1,26 @@
+import { while } from "Control"
+
+
+
+noRemainder :: Integer -> Integer -> Boolean
+noRemainder = (d, n) => n % d == 0
+
+primal :: Integer -> Integer -> Boolean
+primal = (i, num) => noRemainder(num, i) || noRemainder(num, i + 2)
+
+isPrime :: Integer -> Boolean
+export isPrime = (n) => {
+  checker = (start, matched) => if (start * start > n || primal(start, n)) {
+    matched
+  } else {
+    checker(start + 6, true)
+  }
+
+  return if (n == 2 || n == 3) {
+    true
+  } else if (n <= 1 || noRemainder(2, n) || noRemainder(3, n)) {
+    false
+  } else {
+    checker(5, false)
+  }
+}
