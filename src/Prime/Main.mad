@@ -1,15 +1,31 @@
+import { while } from "Control"
+import { toInteger } from "Float"
 import IO from "IO"
 import { filter, range } from "List"
+import { pow } from "Math"
 
 import { isPrime } from "./Prime"
 
 
 
+run = (limit) => {
+  total = 0
+  count = 0
+  while(
+    () => {
+      if (isPrime(count)) do {
+        total = total + 1
+      }
+      count = count + 1
+      return count < limit
+    },
+  )
+  return total
+}
+
 main = () => {
-  n = 400000
-  pipe(
-    range(0),
-    filter(isPrime),
-    IO.trace(`Primes under ${show(n)}`),
-  )(n)
+  // limit = toInteger(pow(2, 28))
+  limit = toInteger(pow(2, 16))
+  total = run(limit)
+  IO.putLine(`Calculated ${show(total)} primes under ${show(limit)}`)
 }
